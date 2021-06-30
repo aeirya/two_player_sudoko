@@ -1,3 +1,6 @@
+#include <stdio.h>
+#include <stdlib.h>
+
 #include "server.h"
 #include "simple_receiver.h"
 #include "game.h"
@@ -16,10 +19,12 @@ int main()
     game_state_t state;
     int turn = 0;
     int loc, digit;
+    
     while (true) 
     {
-        receive(clients[turn], &loc, &digit); 
-        move(&state, turn, loc, digit);
+        while (receive(clients[turn], &loc, &digit)==0) {
+            move(&state, turn, loc, digit);
+        } 
         turn = (turn+1)%2;
     }
 }
