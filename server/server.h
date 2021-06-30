@@ -1,15 +1,20 @@
 #pragma once
 
 /*
-    returns server file descriptor
+    struct used as a handle for server socket
 */
-int start_server(int port);
+typedef struct
+{
+	int server_fd;
+	struct sockaddr_in *address;
+} server_t;
 
 /*
-    return tcp socket file descriptor
+    returns server file descriptor
 */
-int accept_connection(int server_fd);
+server_t start_server(int port);
 
-// void send();
-
-// void recieve();
+/*
+    returns tcp socket file descriptor
+*/
+int accept_connection(const server_t* server);

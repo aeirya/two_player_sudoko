@@ -3,4 +3,9 @@
 typedef struct
 {
     int blocks[N];
-} GameState;
+} game_state_t;
+
+void move(game_state_t* state, int client, int loc, int digit)
+{
+    // do changes here
+}

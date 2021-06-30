@@ -1,18 +1,13 @@
-// #include <unistd.h>
-// #include <stdio.h>
+#include <unistd.h>
 #include <sys/socket.h>
-// #include <stdlib.h>
+#include <stdlib.h>
 #include <netinet/in.h>
-// #include <string.h>
 
-int init_server() 
+#include "server.h"
+
+int create_welcome_socket() 
 {
-	int server_fd, 
-	struct sockaddr_in address;
-	int opt = 1;
-	int addrlen = sizeof(address);
-	char buffer[1024] = {0};
-	
+	int server_fd; 
 	// Creating socket file descriptor
 	if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0)
 	{
@@ -22,18 +17,25 @@ int init_server()
 	return server_fd;
 }
 
-void bind_port(int server_fd, int port) 
+struct socketaddr* socket_address(int port)
 {
+	struct sockaddr_in address;
+	address.sin_family = AF_INET;
+	address.sin_addr.s_addr = INADDR_ANY;
+	address.sin_port = htons(port);
+	return &address;
+}
+
+void bind_port(int server_fd, int port, struct sockaddr* address) 
+{
+	int opt = 1;
 	// Forcefully attaching socket to the port 8080
 	if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)))
 	{
 		perror("setsockopt");
 		exit(EXIT_FAILURE);
 	}
-	address.sin_family = AF_INET;
-	address.sin_addr.s_addr = INADDR_ANY;
-	address.sin_port = htons( PORT );
-	
+
 	// Forcefully attaching socket to the port 8080
 	if (bind(server_fd, (struct sockaddr *)&address,
 								sizeof(address))<0)
@@ -48,16 +50,25 @@ void bind_port(int server_fd, int port)
 	}
 }
 
-int start_server(int port) 
+server_t start_server(int port)
 {
-	int server_fd = init_server();
-	bind_port(server_fd, port);
-	return server_fd;
+	int server_fd, client_fd;
+	struct sockaddr_in *address;
+	server_t server;
+
+	server_fd = init_server();
+	address = socket_address(port);
+	bind_port(server_fd, port, address);
+
+	server.address = address;
+	server.server_fd = server_fd;
+	return server;
 }
 
-int accept_connection(int server_fd) 
+int do_accept_connection(int server_fd, struct scoketaddr *address) 
 {
 	int new_socket;
+	int addrlen = sizeof(address);
 	// accepting
 	if ((new_socket = accept(server_fd, (struct sockaddr *)&address,
 					(socklen_t*)&addrlen))<0)
@@ -68,8 +79,13 @@ int accept_connection(int server_fd)
 	return new_socket;
 }
 
-  int valread;
-	valread = read( new_socket , buffer, 1024);
+int accept_connection(const server_t* server) 
+{
+	return do_accept_connection(server->server_fd, server->address);
+}
+
+//   int valread;
+// 	valread = read( new_socket , buffer, 1024);
 	
-	printf("%s\n",buffer );
-	send(new_socket , hello , strlen(hello) , 0 );
+// 	printf("%s\n",buffer );
+// 	send(new_socket , hello , strlen(hello) , 0 );
