@@ -1,1 +1,0 @@
-int connect_to_server(int port, char* ip);
