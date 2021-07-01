@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 #include "server.h"
 #include "simple_receiver.h"
@@ -22,6 +23,7 @@ int main()
     
     while (true) 
     {
+        bool state_changed = false;
         while (receive(clients[turn], &loc, &digit)==0) {
             move(&state, turn, loc, digit);
         } 

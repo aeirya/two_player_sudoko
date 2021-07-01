@@ -84,6 +84,16 @@ int accept_connection(const server_t* server)
 	return do_accept_connection(server->server_fd, server->address);
 }
 
+
+ssize_t send_msg(int socket_fd, const message_t* msg)
+{
+	int size = 2;
+	char buffer[size];
+	buffer[0] = msg->digit;
+	buffer[1] = msg->loc;
+	send(socket_fd, buffer, size, 0);
+}
+
 //   int valread;
 // 	valread = read( new_socket , buffer, 1024);
 	
